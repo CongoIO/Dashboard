@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="js/jquery.runner.js"></script>
+<script src="http://www.parsecdn.com/js/parse-1.2.12.min.js"></script>
+<meta charset=utf-8 />
+<title>Congo Beta Start</title>
+</head>
+<body ng-app="AuthApp">
+  <div ng-hide="currentUser">
+    <form ng-show="scenario == 'Sign up'">
+      <h2>Sign up - Congo Beta</h2>
+      Email: <input type="email" ng-model="user.email" /><br />
+      Username: <input type="text" ng-model="user.username" /><br />
+      Password: <input type="password" ng-model="user.password" /><br />
+      Who Are You:<form action="" ng-model="user.type">
+		  <select name="expert_user">
+			  <option value="expert">Expert</option>
+			  <option value="user">User</option>
+		  </select><br />
+		  
+      <button ng-click="signUp(user)">Sign up</button>
+      or <a href="#" ng-click='scenario="Log in"'>Log in</a>
+    </form>
+    
+    <form ng-show="scenario == 'Log in'">
+      <h2>Log in - Congo Beta</h2>
+      Username: <input type="text" ng-model="user.username" /><br />
+      Password: <input type="password" ng-model="user.password" /><br />
+      <button ng-click="logIn(user)">Log in</button>
+      or <a href="#" ng-click='scenario="Sign up"'>Sign up</a>
+    </form>
+  </div>
+  
+  <div ng-show="currentUser">
+    <h1>Welcome {{currentUser.get('username')}}</h1>
+    <p> You have been successfully logged in</p>
+    <div id='myPublisherDiv'></div> 
+    <div id='subscribersDiv'></div> 
+   
+    
+    <script src='//static.opentok.com/webrtc/v2.2/js/opentok.min.js'></script> 
+    <script> 
+      var apiKey = '45049992';
+      var sessionId = '2_MX40NTA0OTk5Mn5-MTQxNDUzNDc2NDM1N35nV0RSb2xWVW5waEQ1a1dsOGtKVUYvZVF-fg'; 
+      var token = 'T1==cGFydG5lcl9pZD00NTA0OTk5MiZzaWc9NDlkZDhhMzg4OWJjYWM2ZTdlYmUxODU2Yzc1NjE1MDc5YWVkZDNlMTpyb2xlPXB1Ymxpc2hlciZzZXNzaW9uX2lkPTJfTVg0ME5UQTBPVGs1TW41LU1UUXhORFV6TkRjMk5ETTFOMzVuVjBSU2IyeFdWVzV3YUVRMWExZHNPR3RLVlVZdlpWRi1mZyZjcmVhdGVfdGltZT0xNDE0NTM3MDcwJm5vbmNlPTAuNTkyOTEzOTQzNzYzNTgxMg==';
+      var session = OT.initSession(apiKey, sessionId); 
+      session.on({ 
+          streamCreated: function(event) { 
+            session.subscribe(event.stream, 'subscribersDiv', {insertMode: 'append'}); 
+          } 
+      }); 
+      session.connect(token, function(error) {
+        if (error) {
+          console.log(error.message);
+        } else {
+          session.publish('myPublisherDiv', {width: 320, height: 240}); 
+        }
+      });
+
+    </script>  
+  
+    
+    <button type="button" onclick="setTime()">Time Call</button>
+    
+    
+    
+       
+    
+    <button ng-click="logOut(user)">Log out</button>
+  </div>
+  
+<script id="jsbin-javascript">
+
+
+
+Parse.initialize("ek7ZIpFjIEJNjgNIoVKH3PrFyMbfci6JHejyJ1zH", "WmVkBOSstPC1ctaIh2HsNVsm0iLr0q18dcbJzM0t");
+
+angular.module('AuthApp', [])
+.run(['$rootScope', function($scope) {
+  $scope.scenario = 'Sign up';
+  $scope.currentUser = Parse.User.current();
+  
+  $scope.signUp = function(form) {
+    var user = new Parse.User();
+    user.set("email", form.email);
+    user.set("username", form.username);
+    user.set("password", form.password);
+    user.set("type", form.type);
+    
+    user.signUp(null, {
+      success: function(user) {
+        $scope.currentUser = user;
+        $scope.$apply();
+      },
+      error: function(user, error) {
+        alert("Unable to sign up:  " + error.code + " " + error.message);
+      }
+    });    
+  };
+  
+  $scope.logIn = function(form) {
+    Parse.User.logIn(form.username, form.password, {
+      success: function(user) {
+        $scope.currentUser = user;
+        $scope.$apply();
+      },
+      error: function(user, error) {
+        alert("Unable to log in: " + error.code + " " + error.message);
+      }
+    });
+  };
+  
+  $scope.logOut = function(form) {
+    Parse.User.logOut();
+    $scope.currentUser = null;
+  };
+}]);
+
+</script>
+</body>
+</html>
+
+
+    
